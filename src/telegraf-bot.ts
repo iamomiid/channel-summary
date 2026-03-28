@@ -115,22 +115,29 @@ export class TelegrafBot {
   }
 
   async start(): Promise<void> {
+    console.log('[BOT] start() called, isRunning:', this.isRunning);
     if (this.isRunning) return;
 
+    console.log('[BOT] Setting up commands...');
     // Register commands for autocomplete menu
+    console.log('[BOT] About to call setMyCommands...');
     await this.bot.telegram.setMyCommands([
       { command: 'start', description: 'Show welcome message and available commands' },
       { command: 'status', description: 'Check bot status and message count' },
       { command: 'summarize', description: 'Generate summary of recent messages' },
       { command: 'stored', description: 'Show message counts per channel (debug)' },
     ]);
+    console.log('[BOT] Commands set up, launching bot...');
+    console.log('[BOT] About to call bot.launch()...');
 
-    await this.bot.launch();
-    this.isRunning = true;
-    console.log('Telegraf bot started');
+    // bot.launch() starts long-polling - use callback to know when ready
+    // but don't await it since it blocks indefinitely
+    this.bot.launch(() => {
+      console.log('[BOT] Bot is now listening for messages');
+      this.isRunning = true;
+    });
 
-    process.once('SIGINT', () => this.stop());
-    process.once('SIGTERM', () => this.stop());
+    console.log('Telegraf bot started (long-polling active)');
   }
 
   async stop(): Promise<void> {

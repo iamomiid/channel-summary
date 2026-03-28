@@ -7,11 +7,15 @@ async function main() {
   console.log(`Timezone: ${process.env.TZ || 'UTC'}`);
 
   try {
+    console.log('[1/5] Connecting GramJS client...');
     await gramjsClient.connect();
-    await telegrafBot.start();
-
+    console.log('[2/5] Initializing scheduler...');
     const scheduler = new CronScheduler(telegrafBot);
+    console.log('[3/5] Starting scheduler...');
     scheduler.start();
+    console.log('[4/5] Starting Telegraf bot (non-blocking)...');
+    telegrafBot.start();
+    console.log('[5/5] Bot setup complete');
 
     console.log('✅ Bot is running!');
     console.log(`Summary will be sent to: ${process.env.SUMMARY_DESTINATION}`);
@@ -39,4 +43,7 @@ async function main() {
   }
 }
 
-main();
+main().catch((error) => {
+  console.error('Unhandled error in main:', error);
+  process.exit(1);
+});
