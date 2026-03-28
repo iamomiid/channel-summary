@@ -39,15 +39,15 @@ export async function summarizeMessages(
     messagesText += '\n';
   }
 
-  // Use custom prompt if provided, otherwise use default
-  let prompt: string;
+  // Build default prompt
+  let prompt = `Please provide a concise summary of the key highlights from the following Telegram messages. Focus only on the most important points and overall themes.\n\n`;
+  prompt += `Messages:\n\n${messagesText}`;
+
+  // Append custom prompt if provided
   if (appConfig.openrouter.customPrompt) {
-    prompt = appConfig.openrouter.customPrompt
+    prompt += '\n\n' + appConfig.openrouter.customPrompt
       .replace('{{period}}', period)
       .replace('{{messages}}', messagesText);
-  } else {
-    prompt = `Please provide a concise summary of the key highlights from the following Telegram messages. Focus only on the most important points and overall themes.\n\n`;
-    prompt += `Messages:\n\n${messagesText}`;
   }
 
   try {
